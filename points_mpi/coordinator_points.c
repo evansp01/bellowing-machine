@@ -36,6 +36,7 @@ static double *init_means(int n, int k, double *points)
 //Split up the input points across the workers
 static void split_points(int n, int k, int world_size, double *points)
 {
+    printf("splitting into %d partitions", k);
     int workers = world_size - 1;
     int elems_left = n;
     int workers_left = workers;
@@ -68,7 +69,7 @@ static void split_points(int n, int k, int world_size, double *points)
 }
 
 //Read the input to k-means from a file
-static double *read_input(char *filename, int *n, int *k, int *iters)
+static double *read_input(char *filename, int *n)
 {
     printf("Opening file %s\n", filename);
     FILE *f = fopen(filename, "r");
@@ -76,12 +77,12 @@ static double *read_input(char *filename, int *n, int *k, int *iters)
     {
         return NULL;
     }
-    fscanf(f, "%d %d %d\n", n, k, iters);
-    printf("Read dataset file %s with n=%d, k=%d, iters=%d\n", filename, *n, *k, *iters);
+    fscanf(f, " %d", n);
+    printf("Read dataset file %s with n=%d\n", filename, *n);
     double *points = (double *) malloc(DIM * (*n) * sizeof(double));
     for (int i = 0; i < *n; i++)
     {
-        fscanf(f, "%lf %lf\n", &points[DIM * i], &points[DIM * i + 1]);
+        fscanf(f, " %lf %lf", &points[DIM * i], &points[DIM * i + 1]);
         printf("Point %d = (%f, %f)\n", i, points[DIM * i], points[DIM * i + 1]);
     }
     fclose(f);
@@ -138,13 +139,13 @@ static void notify_done(int world_size)
     }
 }
 
-void main_routine(int world_size, char *infile, char *outfile)
+void main_routine(int world_size, char *infile, char *outfile, int iterations, int k)
 {
     //seed random number generator
 
-    int n, k, iterations;
+    int n;
     printf("%s\n", infile);
-    double *points = read_input(infile, &n, &k, &iterations);
+    double *points = read_input(infile, &n);
     if (points == NULL)
     {
         //should tell things to abort
