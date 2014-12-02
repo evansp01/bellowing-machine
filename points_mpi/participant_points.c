@@ -46,6 +46,7 @@ void worker_routine(int rank)
             printf("Process %d recieved abort signal\n", rank);
             break;
         }
+        //printf("running worker %d iteration", rank);
         memset(mean_sums, 0, DIM * k * sizeof(double));
         memset(mean_counts, 0, k * sizeof(int));
         MPI_Recv(means,  DIM * k, MPI_DOUBLE, MASTER, SEND_MEANS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);

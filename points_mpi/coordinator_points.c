@@ -84,7 +84,7 @@ static double *read_input(char *filename, int *n)
     for (int i = 0; i < *n; i++)
     {
         fscanf(f, " %lf %lf", &points[DIM * i], &points[DIM * i + 1]);
-        printf("Point %d = (%f, %f)\n", i, points[DIM * i], points[DIM * i + 1]);
+        //printf("Point %d = (%f, %f)\n", i, points[DIM * i], points[DIM * i + 1]);
     }
     fclose(f);
     return points;
@@ -97,6 +97,7 @@ static void run_iterations(int n, int k, int world_size, int iterations, double 
     int *mean_counts = (int *) malloc(k * sizeof(int));
     double *sums_acc = (double *) malloc(k * DIM * sizeof(double));
     int *count_acc = (int *) malloc(k * sizeof(int));
+    printf("Running %d iterations", iterations);
     for (int i = 0; i < iterations; i++)
     {
         int cont = 1;
