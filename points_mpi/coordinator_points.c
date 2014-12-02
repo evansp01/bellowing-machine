@@ -75,6 +75,7 @@ static double *read_input(char *filename, int *n)
     FILE *f = fopen(filename, "r");
     if (f == NULL)
     {
+        MPI_Abort(MPI_COMM_WORLD, 0);
         return NULL;
     }
     fscanf(f, " %d", n);
