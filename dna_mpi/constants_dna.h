@@ -1,7 +1,6 @@
 #ifndef CONSTANTS_POINTS_   /* Include guard */
 #define CONSTANTS_POINTS_
 
-#define DIM 5
 #define MASTER 0
 #define SEND_N 0
 #define SEND_K 1

@@ -28,13 +28,15 @@ int main(int argc, char **argv)
     {
         char infile[FILELEN];
         char outfile[FILELEN];
+        int iterations = 1;
+        int clusters = 2;
         int c;
 
         opterr = 0;
-        while ((c = getopt (argc, argv, "o:i:")) != -1){
+        while ((c = getopt (argc, argv, "o:d:i:c:")) != -1){
             switch (c)
             {
-            case 'i':
+            case 'd':
                 printf("infile %s\n", optarg);
                 strncpy(infile, optarg, FILELEN);
                 break;
@@ -42,12 +44,18 @@ int main(int argc, char **argv)
                 printf("outfile %s\n", optarg);
                 strncpy(outfile, optarg, FILELEN);
                 break;
+            case 'i':
+                iterations = atoi(optarg);
+                break;
+            case 'c':
+                clusters = atoi(optarg);
+                break;
             default:
                 abort ();
             }
         }
         printf("%s %s\n", infile, outfile);
-        main_routine(world_size, infile, outfile);
+        main_routine(world_size, infile, outfile, iterations, clusters);
     }
     else if (world_rank < world_size)
     {

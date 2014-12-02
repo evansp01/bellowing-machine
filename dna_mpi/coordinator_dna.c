@@ -68,7 +68,7 @@ static void split_points(int n, int k, int len, int world_size, char *points)
 }
 
 //Read the input to k-means from a file
-static char *read_input(char *filename, int *len, int *n, int *k, int *iters)
+static char *read_input(char *filename, int *len, int *n)
 {
     printf("Opening file %s\n", filename);
     FILE *f = fopen(filename, "r");
@@ -76,8 +76,8 @@ static char *read_input(char *filename, int *len, int *n, int *k, int *iters)
     {
         return NULL;
     }
-    fscanf(f, "%d %d %d %d\n", len, n, k, iters);
-    printf("Read dataset file %s with len=%d n=%d, k=%d, iters=%d\n", filename, *len, *n, *k, *iters);
+    fscanf(f, "%d %d\n", len, n);
+    printf("Read dataset file %s with len=%d n=%d\n", filename, *len, *n);
     char *points = (char *) malloc((*len * (*n) + 1) * sizeof(char));
     char format[24];
     sprintf(format, " %%%ds", *len);
@@ -171,14 +171,14 @@ static void notify_done(int world_size)
     }
 }
 
-void main_routine(int world_size, char *infile, char *outfile)
+void main_routine(int world_size, char *infile, char *outfile, int iterations, int k)
 {
-    int n, k, len, iterations;
+    int n, len;
     printf("%s\n", infile);
-    char *points = read_input(infile, &len, &n, &k, &iterations);
+    char *points = read_input(infile, &len, &n);
     if (points == NULL)
     {
-        //should tell things to abort
+        MPI_Abort(MPI_COMM_WORLD, 0);
         return;
     }
     char *means = init_means(n, k, len, points);
@@ -196,8 +196,8 @@ void main_routine(int world_size, char *infile, char *outfile)
     }
     for (int i = 0; i < k; i++)
     {
-        //fprintf(of, "The mean %d is at (%f,%f)\n", i, means[DIM * i], means[DIM * i + 1]);
+        fprintf (of, "Mean %d = %.*s\n", i, len, &points[(len)*i]);
     }
-    //free(means);
+    free(means);
     free(points);
 }

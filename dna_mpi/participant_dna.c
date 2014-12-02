@@ -54,12 +54,12 @@ void worker_routine(int rank)
             printf("Process %d recieved abort signal\n", rank);
             break;
         }
-        memset(mean_sums, 0, DIM * k * sizeof(char));
+        memset(mean_sums, 0, len * 4 * k * sizeof(char));
         memset(mean_counts, 0, k * sizeof(int));
-        MPI_Recv(means,  DIM * k, MPI_CHAR, MASTER, SEND_MEANS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(means,  len * k, MPI_CHAR, MASTER, SEND_MEANS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         for (int i = 0; i < n; i++)
         {
-            char *point = &points[DIM * i];
+            char *point = &points[len * i];
             int mean_index = dna_most_similar(k, len, means, point);
             //printf("For point %d, decided closest to mean %d\n", i, mean_index);
             for (int j = 0; j < len; j++)
