@@ -86,17 +86,17 @@ static char *read_input(char *filename, int *len, int *n)
         fscanf(f, format, &points[(*len)*i]);
     }
     fclose(f);
-    for (int i = 0; i < *n; i++)
-    {
-        printf ("Point %d = %.*s\n", i, *len, &points[(*len)*i]);
-    }
+    // for (int i = 0; i < *n; i++)
+    // {
+    //     printf ("Point %d = %.*s\n", i, *len, &points[(*len)*i]);
+    // }
     return points;
 }
 
 
 static void recalculate_means(int *mean_sums, char *means, int k, int len){
     for(int i=0;i<k*len;i++){
-        int *character = &mean_sums[i*len*4];
+        int *character = &mean_sums[i*4];
         int max = 0;
         int max_index = -1;
         for (int j=0; j<4;j++){
@@ -127,6 +127,7 @@ static void recalculate_means(int *mean_sums, char *means, int k, int len){
 //Run some number of iterations of k-means
 static void run_iterations(int n, int k, int len, int world_size, int iterations, char *means)
 {
+	printf("entered iterations\n");
     int *mean_sums = (int *) malloc(k * len * 4* sizeof(int));
     int *mean_counts = (int *) malloc(k * sizeof(int));
     int *sums_acc = (int *) malloc(k * len *4 * sizeof(int));
@@ -143,7 +144,7 @@ static void run_iterations(int n, int k, int len, int world_size, int iterations
         memset(count_acc, 0, k * sizeof(int));
         for (int t = 1; t < world_size; t++)
         {
-            MPI_Recv(mean_sums, len*4 * k, MPI_INT, t, REPLY_MEANS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(mean_sums, len* 4 * k, MPI_INT, t, REPLY_MEANS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             MPI_Recv(mean_counts, k, MPI_INT, t, REPLY_COUNTS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             for (int j = 0; j < k; j++)
             {
@@ -184,6 +185,8 @@ void main_routine(int world_size, char *infile, char *outfile, int iterations, i
     char *means = init_means(n, k, len, points);
     split_points(n, k, len, world_size, points);
     printf("Finished initialization\n");
+    printf("stuff: %d %d %d\n",n,k,len);
+    fflush(stdout);
     run_iterations(n, k, len, world_size, iterations, means);
     notify_done(world_size);
 
