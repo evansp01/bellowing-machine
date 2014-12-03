@@ -1,19 +1,12 @@
+#!/usr/bin/env python3
+
 import random
 import argparse
 
-
-def to_base(n):
-	if n == 0:
-		return "T"
-	if n == 1:
-		return "C"
-	if n == 2:
-		return "A"
-	if n == 3:
-		return "G"
+bases = ["T", "C", "A", "G"]
 
 def random_base():
-	return to_base(random.randint(0,3))
+	return bases[random.randint(0,3)]
 
 
 def random_string(k):
