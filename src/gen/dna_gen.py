@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 
 import random
 import argparse
@@ -24,23 +24,19 @@ def relative_string(parent, similarity):
 			newstr.append(i)
 	return ''.join(newstr)
 
-def gen_n_relatives(parent, similarity, n):
+def gen_n_relatives(parent, similarity, n, f):
 	l = []
 	for _ in range(n):
-		l.append(relative_string(parent,similarity))
+		f.write(relative_string(parent,similarity)+"\n")
 	return l
 
-def distribution(lengths, clusters, ppc, similarity):
-	points = []
+def distribution(lengths, clusters, ppc, similarity,f):
 	means = []
 	for _ in range(clusters):
 		parent = random_string(lengths)
-		relatives = gen_n_relatives(parent, similarity, ppc)
-		points.append(parent)
-		points += relatives
+		gen_n_relatives(parent, similarity, ppc,f)
 		means.append(parent)
-	random.shuffle(points)
-	return points, means
+	return means
 
 def main():
 	parser = argparse.ArgumentParser()
@@ -50,12 +46,9 @@ def main():
 	parser.add_argument("-s", "--similarity", help="a real between 0 and 1 describing how similar points within a cluster are. 1 is the most similar", type=float, required=True)
 	parser.add_argument("-f", "--file", help="the file to write the dataset to", required=True)
 	args = parser.parse_args()
-	points, means = distribution(args.length, args.clusters, args.number, args.similarity)
 	f = open(args.file, "w")
-	f.write('%s %s\n' % (args.length, len(points)))
-	for point in points:
-		f.write(point)
-		f.write("\n")
+	f.write('%s %s\n' % (args.length, args.clusters*args.number))
+	points = distribution(args.length, args.clusters, args.number, args.similarity,f)
 	f.close()
 
 if __name__ == "__main__":
