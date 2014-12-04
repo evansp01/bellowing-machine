@@ -1,6 +1,9 @@
 #include <mpi.h>
 #include <time.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 #include "constants.h"
 
 static int dna_dist(char *mean, char *point, int len)

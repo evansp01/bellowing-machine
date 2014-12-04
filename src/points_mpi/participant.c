@@ -1,6 +1,9 @@
 #include <mpi.h>
 #include <time.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 #include "constants.h"
 
 static double sq_dist(double x1, double y1, double x2, double y2)

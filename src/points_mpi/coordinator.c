@@ -2,6 +2,9 @@
 #include <time.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 #include "constants.h"
 
 //Initialize the means to random values
