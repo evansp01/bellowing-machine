@@ -2,3 +2,4 @@
 /dna_mpi
 *.dat
 env_set
+/src/numpy
