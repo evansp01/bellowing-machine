@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 
 import sys
 import csv
@@ -10,11 +10,11 @@ import math
 #lightly modified by esp, trigoudy
 
 def usage():
-    print('$> python generaterawdata.py <required args> [optional args]\n' + \
+    print '$> python generaterawdata.py <required args> [optional args]\n' + \
         '\t-c <#>\t\tNumber of clusters to generate\n' + \
         '\t-p <#>\t\tNumber of points per cluster\n' + \
         '\t-o <file>\tFilename for the output of the raw data\n' + \
-        '\t-v [#]\t\tMaximum coordinate value for points\n')
+        '\t-v [#]\t\tMaximum coordinate value for points\n'
 
        
        
