@@ -83,7 +83,7 @@ output, \
 maxValue = handleArgs(sys.argv)
 
 f = open(output, "w")
-f.write("%s\n" % numPoints*numClusters)
+f.write(numPoints*numClusters + "\n")
 
 # step 1: generate each 2D centroid
 centroids_radii = []
