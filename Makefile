@@ -29,11 +29,11 @@ points_mpi: $(POINTSMPI) $(ARGS)
 
 dna_test: dna_large.dat dna_small.dat
 
-dna_large.dat:
+dna_large.dat: src/numpy
 	@echo "Generating large dna dataset. This could take some time."
 	$(SETPATH); $(PYTHON) $(GEN)/dna_gen.py -c 6 -l 50 -n 200000 -s 0.9 -f dna_large.dat
 
-dna_small.dat:
+dna_small.dat: src/numpy
 	@echo "Generating small dna dataset."
 	$(SETPATH); $(PYTHON) $(GEN)/dna_gen.py -c 6 -l 50 -n 20000 -s 0.9 -f dna_small.dat
 
