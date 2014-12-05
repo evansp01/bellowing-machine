@@ -4,9 +4,11 @@ POINTSMPI = ./src/points_mpi/*.c
 CC = mpicc
 FLAGS = -std=c11 -o
 PYTHON = python3
+PYTHON2 = python2
 GEN = ./src/gen
 
 .PHONY: clean
+.PHONY: clean-data
 
 all: dna_mpi points_mpi test
 
@@ -20,24 +22,26 @@ points_mpi: $(POINTSMPI) $(ARGS)
 
 dna_test: dna_large.dat dna_small.dat
 
-dna_large.dat: src/numpy
+dna_large.dat:
 	@echo "Generating large dna dataset. This could take some time."
-	$(PYTHON) $(GEN)/dna_gen.py -c 6 -l 50 -n 200000 -s 0.9 -f dna_large.dat
+	$(PYTHON) $(GEN)/dna_gen.py -c 2 -l 50 -n 500000 -s 0.9 -f dna_large.dat
 
-dna_small.dat: src/numpy
+dna_small.dat:
 	@echo "Generating small dna dataset."
-	$(PYTHON) $(GEN)/dna_gen.py -c 6 -l 50 -n 20000 -s 0.9 -f dna_small.dat
+	$(PYTHON) $(GEN)/dna_gen.py -c 2 -l 50 -n 50000 -s 0.9 -f dna_small.dat
 
 points_test: points_large.dat points_small.dat
 
 points_large.dat:
 	@echo "Generating large points dataset. This could take some time."
-	python2 $(GEN)/points_gen.py -c 6 -p 200000 -o points_large.dat -v 50
+	$(PYTHON2) $(GEN)/points_gen.py -c 2 -p 500000 -o points_large.dat -v 50
 
 points_small.dat:
 	@echo "Generating small points dataset."
-	python2 $(GEN)/points_gen.py -c 6 -p 20000 -o points_small.dat -v 50
+	$(PYTHON2) $(GEN)/points_gen.py -c 2 -p 50000 -o points_small.dat -v 50
+
+clean-data:
+	rm -rf points_large.dat points_small.dat dna_large.dat dna_small.dat
 
 clean:
 	rm -rf dna_mpi points_mpi 
-	rm -rf points_large.dat points_small.dat dna_large.dat dna_small.da

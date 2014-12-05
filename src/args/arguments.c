@@ -23,12 +23,10 @@ bool get_args(Arguments *args, int argc, char **argv)
         {
         case 'd':
         	ifspec = true;
-            printf("infile %s\n", optarg);
             strncpy(args->infile, optarg, FILELEN);
             break;
         case 'o':
         	ofspec = true;
-            printf("outfile %s\n", optarg);
             strncpy(args->outfile, optarg, FILELEN);
             break;
         case 'i':

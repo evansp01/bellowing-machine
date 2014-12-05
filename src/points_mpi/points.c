@@ -9,9 +9,6 @@
 #include "participant.h"
 #include "../args/arguments.h"
 
-#define FILELEN 256
-
-
 int main(int argc, char **argv)
 {
     // Initialize the MPI environment
@@ -31,7 +28,8 @@ int main(int argc, char **argv)
     if (world_rank == 0)
     {
         Arguments args;
-        if(!get_args(&args, argc, argv)){
+        if (!get_args(&args, argc, argv))
+        {
             fprintf(stderr, "Argument parsing failed, aborting\n");
             MPI_Abort(MPI_COMM_WORLD, 1);
         }

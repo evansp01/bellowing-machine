@@ -8,9 +8,6 @@
 #include "participant.h"
 #include "../args/arguments.h"
 
-#define FILELEN 256
-
-
 int main(int argc, char **argv)
 {
     // Initialize the MPI environment

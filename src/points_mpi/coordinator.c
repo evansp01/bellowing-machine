@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "constants.h"
+#include "../debug/debug.h"
 
 //Initialize the means to random values
 static double *init_means(int n, int k, double *points)
@@ -27,17 +28,17 @@ static double *init_means(int n, int k, double *points)
     {
         means[DIM * i] = points[DIM * vektor[i]];
         means[DIM * i + 1] = points[DIM * vektor[i] + 1];
-        printf("k%d = (%f,%f)  ", i, means[DIM * i], means[DIM * i + 1]);
+        debugf("k%d = (%f,%f)  ", i, means[DIM * i], means[DIM * i + 1]);
     }
     free(vektor);
-    printf("\n");
+    debugf("\n");
     return means;
 }
 
 //Split up the input points across the workers
 static void split_points(int n, int k, int world_size, double *points)
 {
-    printf("splitting into %d partitions\n", k-1);
+    debugf("splitting into %d partitions\n", k - 1);
     int workers = world_size - 1;
     int elems_left = n;
     int workers_left = workers;
@@ -51,12 +52,6 @@ static void split_points(int n, int k, int world_size, double *points)
         starts[i] = starts[i - 1] + alloc_elems;
     }
     starts[workers] = n;
-    printf("starts: ");
-    for (int i = 0; i < workers + 1; i++)
-    {
-        printf("%d ", starts[i]);
-    }
-    printf("\n");
     for (int t = 1; t < world_size; t++)
     {
         int start = starts[t - 1];
@@ -64,7 +59,8 @@ static void split_points(int n, int k, int world_size, double *points)
         int num_points = end - start;
         MPI_Send(&num_points, 1, MPI_INT, t, SEND_N, MPI_COMM_WORLD);
         MPI_Send(&k, 1, MPI_INT, t, SEND_K, MPI_COMM_WORLD);
-        MPI_Send(&points[DIM * start], DIM * num_points, MPI_DOUBLE, t, SEND_POINTS, MPI_COMM_WORLD);
+        MPI_Send(&points[DIM * start], DIM * num_points, MPI_DOUBLE, t,
+                 SEND_POINTS, MPI_COMM_WORLD);
     }
     free(starts);
 }
@@ -72,7 +68,7 @@ static void split_points(int n, int k, int world_size, double *points)
 //Read the input to k-means from a file
 static double *read_input(char *filename, int *n)
 {
-    printf("Opening file %s\n", filename);
+    debugf("Opening file %s\n", filename);
     FILE *f = fopen(filename, "r");
     if (f == NULL)
     {
@@ -80,25 +76,25 @@ static double *read_input(char *filename, int *n)
         return NULL;
     }
     fscanf(f, " %d", n);
-    printf("Read dataset file %s with n=%d\n", filename, *n);
+    debugf("Read dataset file %s with n=%d\n", filename, *n);
     double *points = (double *) malloc(DIM * (*n) * sizeof(double));
     for (int i = 0; i < *n; i++)
     {
         fscanf(f, " %lf %lf", &points[DIM * i], &points[DIM * i + 1]);
-        //printf("Point %d = (%f, %f)\n", i, points[DIM * i], points[DIM * i + 1]);
     }
     fclose(f);
     return points;
 }
 
 //Run some number of iterations of k-means
-static void run_iterations(int n, int k, int world_size, int iterations, double *means)
+static double run_iterations(int n, int k, int world_size, int iterations, double *means)
 {
+    double wait_time = 0, temp;
     double *mean_sums = (double *) malloc(k * DIM * sizeof(double));
     int *mean_counts = (int *) malloc(k * sizeof(int));
     double *sums_acc = (double *) malloc(k * DIM * sizeof(double));
     int *count_acc = (int *) malloc(k * sizeof(int));
-    printf("Running %d iterations", iterations);
+    debugf("Running %d iterations", iterations);
     for (int i = 0; i < iterations; i++)
     {
         int cont = 1;
@@ -111,8 +107,12 @@ static void run_iterations(int n, int k, int world_size, int iterations, double 
         memset(count_acc, 0, k * sizeof(int));
         for (int t = 1; t < world_size; t++)
         {
-            MPI_Recv(mean_sums, DIM * k, MPI_DOUBLE, t, REPLY_MEANS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Recv(mean_counts, k, MPI_INT, t, REPLY_COUNTS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            temp = MPI_Wtime();
+            MPI_Recv(mean_sums, DIM * k, MPI_DOUBLE, t, REPLY_MEANS,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(mean_counts, k, MPI_INT, t, REPLY_COUNTS,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            wait_time += MPI_Wtime() - temp;
             for (int j = 0; j < k; j++)
             {
                 count_acc[j] += mean_counts[j];
@@ -130,6 +130,7 @@ static void run_iterations(int n, int k, int world_size, int iterations, double 
     free(mean_sums);
     free(sums_acc);
     free(count_acc);
+    return wait_time;
 }
 
 //Loop through every process, and inform them that they are all done
@@ -142,36 +143,67 @@ static void notify_done(int world_size)
     }
 }
 
-void main_routine(int world_size, char *infile, char *outfile, int iterations, int k)
+//Write the mean value to a file
+static void write_mean(FILE *f, int num, double x, double y)
 {
-    //seed random number generator
+    fprintf(f, "The mean %d is at (%lf,%lf)\n", num, x, y);
+}
 
-    int n;
-    printf("%s\n", infile);
-    double *points = read_input(infile, &n);
-    if (points == NULL)
-    {
-        //should tell things to abort
-        return;
-    }
-    double *means = init_means(n, k, points);
-    split_points(n, k, world_size, points);
-    printf("Finished initialization\n");
+//write the time to a file
+static void write_time(FILE *f, int num, double total, double wait)
+{
+    fprintf(f, "Process %d:: Runtime: %lf Waittime: %lf\n",
+            num, total, wait);
+}
 
-    run_iterations(n, k, world_size, iterations, means);
-    notify_done(world_size);
-
+static void output_to_file(char *outfile, double *means, double total,
+                           double wait, int world, int k)
+{
     FILE *of = fopen(outfile, "w");
     if (of == NULL)
     {
-        printf("Could not open output file\n");
-        //perhaps we should do something
+        fprintf(stderr, "Could not open output file\n");
         return;
     }
     for (int i = 0; i < k; i++)
     {
-        fprintf(of, "The mean %d is at (%f,%f)\n", i, means[DIM * i], means[DIM * i + 1]);
+        write_mean(of, i, means[DIM * i], means[DIM * i + 1]);
     }
+    //get and write the timings
+    fprintf(of, "--------\n");
+    write_time(of, 0, total, wait);
+    for (int t = 1; t < world; t++)
+    {
+        MPI_Recv(&total, 1, MPI_DOUBLE, t, TIME_TOTL,
+                 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&wait, 1, MPI_DOUBLE, t, TIME_WAIT,
+                 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        write_time(of, t, total, wait);
+    }
+}
+
+void main_routine(int world_size, char *infile, char *outfile, int iterations, int k)
+{
+    int n;
+    double total_time, start_time, wait_time;
+
+    start_time = MPI_Wtime();
+    double *points = read_input(infile, &n);
+    if (points == NULL)
+    {
+        fprintf(stderr, "Could not open output file\n");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+        return;
+    }
+    double *means = init_means(n, k, points);
+    split_points(n, k, world_size, points);
+    debugf("Finished initialization\n");
+
+    wait_time = run_iterations(n, k, world_size, iterations, means);
+    notify_done(world_size);
+    total_time = MPI_Wtime() - start_time;
+    //write output to file
+    output_to_file(outfile, means, total_time, wait_time, world_size, k);
     free(means);
     free(points);
 }
