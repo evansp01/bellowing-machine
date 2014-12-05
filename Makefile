@@ -34,7 +34,7 @@ points_test: points_large.dat points_small.dat points_huge.dat
 
 points_huge.dat:
 	@echo "Generating huge points dataset. This could take some time."
-	$(PYTHON2) $(GEN)/points_gen.py -c 2 -p 5000000 -o points_large.dat -v 50
+	$(PYTHON2) $(GEN)/points_gen.py -c 2 -p 5000000 -o points_huge.dat -v 50
 
 points_large.dat:
 	@echo "Generating large points dataset. This could take some time."
