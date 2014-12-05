@@ -30,7 +30,11 @@ dna_small.dat:
 	@echo "Generating small dna dataset."
 	$(PYTHON) $(GEN)/dna_gen.py -c 2 -l 50 -n 50000 -s 0.9 -f dna_small.dat
 
-points_test: points_large.dat points_small.dat
+points_test: points_large.dat points_small.dat points_huge.dat
+
+points_huge.dat:
+	@echo "Generating huge points dataset. This could take some time."
+	$(PYTHON2) $(GEN)/points_gen.py -c 2 -p 5000000 -o points_large.dat -v 50
 
 points_large.dat:
 	@echo "Generating large points dataset. This could take some time."
@@ -41,7 +45,7 @@ points_small.dat:
 	$(PYTHON2) $(GEN)/points_gen.py -c 2 -p 50000 -o points_small.dat -v 50
 
 clean-data:
-	rm -rf points_large.dat points_small.dat dna_large.dat dna_small.dat
+	rm -rf points_large.dat points_small.dat dna_large.dat dna_small.dat points_huge.dat
 
 clean:
 	rm -rf dna_mpi points_mpi 
