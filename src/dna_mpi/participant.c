@@ -61,8 +61,6 @@ double get_info(int *n, int *k, int *len)
              MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(len, 1, MPI_INT, MASTER, SEND_LEN,
              MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    debugf("Worker %d received instructions that dataset contains %d \
-        points of length %d and will have %d means\n", rank, n, len, k);
     return MPI_Wtime() - temp;
 }
 
@@ -114,6 +112,8 @@ void worker_routine(int rank)
     int n, k, len;
     start_time = MPI_Wtime();
     wait_time = get_info(&n, &k, &len);
+    debugf("Worker %d received instructions that dataset contains %d \
+        points of length %d and will have %d means\n", rank, n, len, k);
     char *points = (char *) malloc(len * n * sizeof(char));
     char *means = (char *) malloc(len * k * sizeof(char));
     int *mean_sums = (int *) malloc(len * k * 4 * sizeof(int));
