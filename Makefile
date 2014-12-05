@@ -14,6 +14,9 @@ all: dna_mpi points_mpi
 
 test: dna_test points_test
 
+handin:
+	git archive -o handin.tar master
+
 dna_mpi: $(DNAMPI) $(ARGS)
 	$(CC) $(FLAGS) dna_mpi $(DNAMPI) $(ARGS)
 
