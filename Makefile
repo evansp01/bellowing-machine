@@ -10,7 +10,7 @@ GEN = ./src/gen
 .PHONY: clean
 .PHONY: clean-data
 
-all: dna_mpi points_mpi test
+all: dna_mpi points_mpi
 
 test: dna_test points_test
 
