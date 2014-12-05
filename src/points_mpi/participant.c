@@ -84,7 +84,7 @@ void worker_routine(int rank)
     int n, k;
     start_time = MPI_Wtime();
     wait_time = get_info(&n, &k);
-    debugf("Worker %d recieved instructions that dataset contains %d \
+    debugf("Worker %d received instructions that dataset contains %d \
            points and will have %d means\n", rank, n, k);
     double *points = (double *) malloc(DIM * n * sizeof(double));
     double *means = (double *) malloc(DIM * k * sizeof(double));
