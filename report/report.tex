@@ -24,5 +24,93 @@
 
 \maketitle
 
+\section{Parallelization of K-Means}
+
+Our parallelization method had a coordinator, and many worker nodes.
+
+The worker nodes were each assigned a chunk of the data. When they were sent a set of means, they would look at their portion of the data, decide which points belonged to each mean, and then calculate the average value of these points for each mean. Once this was done, they reported back to the coordinator node with the average value of the points closest to each mean, and the number of points used to compute that average.
+
+The coordinator repeatedly sent out the current k mean candidates to all of the worker nodes, and then waited for the averages and counts. Once all averages and counts were received, the coordinator node computed the new mean candidates, and sent them out to the workers. Since the number of computations performed by the coordinator depended only on the number of means, its workload was relatively low.
+
+This method of parallelization has the advantage that as long as the nodes can communicate sufficiently quickly, adding more nodes to the cluster will decrease the number of points assigned to each worker node, and therefore, the runtime of the algorithm.
+
+\subsection{Comparison of DNA Sequences}
+
+\section{Performance}
+
+\subsection{Networked Performance}
+
+\subsection{Local Performance}
+
+\section{Data Set Generators}
+
+\subsection{Points Generator}
+
+\subsection{DNA Sequence Generator}
+
+Our DNA sequence generator generated clusters through the following method.
+
+First we generated k random DNA sequences - One for each desired cluster. Then for each one of these parent sequences, we proceeded to generate children.
+
+\section{Building and Running}
+
+First build our project!
+
+\begin{enumerate}
+\item Untar handin.tar into an empty directory.
+\item Build the executables with \texttt{\$ make}
+\item Build the test datasets with \texttt{\$ make test}
+\end{enumerate}
+
+There should now be four executables in your current directory: 
+
+
+\texttt{points\_seq} - The sequential implementation of k-means on points \\
+\texttt{points\_mpi} - The parallelized implementation of k-means on points \\
+\texttt{dna\_seq} - The sequential implementation of k-means on dna \\
+\texttt{dna\_mpi} - The parallelized implementation of k-means on dna \\
+
+There should also be five datasets in the current directory:
+
+
+\texttt{points\_small.dat} - A small dataset of points \\
+\texttt{points\_large.dat} - A large dataset of points \\
+\texttt{points\_huge.dat} - A huge dataset of points \\
+\texttt{dna\_small.dat} - A small dataset of dna sequences \\
+\texttt{dna\_large.dat} - A large dataset of dna sequences \\
+
+
+Running k-means:
+
+All of the executables take the same arguments, as shown below. Note that the dna executables should only be run with the dna datasets, and the points executables with the points datasets.
+
+\begin{verbatim}
+./executable -d DATASET -o OUTFILE -i ITERATIONS -c CLUSTERS
+   -d DATASET      The dataset to run k-means on
+   -o OUTFILE      The file to write the output of k-means to
+   -i ITERATIONS   The number of iterations of k-means to run
+   -c CLUSTERS     The number of clusters to attempt to find
+ \end{verbatim}
+
+ If you would like to experiment with other datasets, you can use our dataset generators. The dataset generators.\\
+
+
+ In \texttt{src/gen}, you will find two files: 
+
+
+ \texttt{dna\_gen.py} - A generator for dna datasets \\
+ \texttt{points\_gen.py} - A generator for points datasets \\
+
+
+ These can be run as follows:
+
+
+ \texttt{\$ python3 dna\_gen.py} \\
+ \texttt{\$ python2 points\_gen.py} \\
+
+ Please consult the help messages for usage.
+
+
+
 
 \end{document}
