@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 size_list     = [100000, 1000000, 10000000]
 numprocs_list = [2,4,8,12]
 iter_list     = [1,10,100]
+cluster_list  = [2,100]
 
 def filename(type, size, numprocs, iter):
     return "%s_%d_%d_%d.out" % (type, size, numprocs, iter)
@@ -89,6 +90,28 @@ def plot_numprocs(times, type, size, iter, numprocs_list):
     plt.savefig(filename)
     plt.show()
 
+def plot_clusters(times, type, size, iter, numprocs):
+    total = []
+    sum_t = []
+    sum_w = []
+    useful = []
+    for cluster in cluster_list:
+        total.append(times[type, size, numprocs, iter, "total_time"])
+        sum_t.append(times[type, size, numprocs, iter, "sum_total"])
+        sum_w.append(times[type, size, numprocs, iter, "sum_wait"])
+        useful.append(times[type, size, numprocs, iter, "useful"])
+
+    plt.figure()
+    plt.plot(cluster_list, total, label="Total time taken")
+    plt.plot(cluster_list, useful, label="Total computing time")
+    plt.plot(cluster_list, sum_t, label="Sum of total worker times")
+    plt.plot(cluster_list, sum_w, label="Sum of worker idle times")
+    plt.xlabel("Number of clusters")
+    plt.ylabel("Time (s)")
+    plt.legend()
+    filename = "cluster_%s_%d_%d.png" % (type, size, iter)
+    plt.savefig(filename)
+    plt.show()
 
 def process_all():
     times = dict()
