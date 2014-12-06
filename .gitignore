@@ -4,3 +4,5 @@
 /dna_seq
 *.dat
 handin.tar
+*.out
+*.bak
