@@ -1,16 +1,19 @@
 ARGS = ./src/args/*.c
 DNAMPI = ./src/dna_mpi/*.c
 POINTSMPI = ./src/points_mpi/*.c
+POINTSSEQ = ./src/points_seq/*.c
+DNASEQ = ./src/dna_seq/*.c
 CC = mpicc
 FLAGS = -std=c11 -o
 PYTHON = python3
 PYTHON2 = python2
 GEN = ./src/gen
+GCC = gcc
 
 .PHONY: clean
 .PHONY: clean-data
 
-all: dna_mpi points_mpi
+all: dna_mpi points_mpi points_seq dna_seq
 
 test: dna_test points_test
 
@@ -20,8 +23,14 @@ handin:
 dna_mpi: $(DNAMPI) $(ARGS)
 	$(CC) $(FLAGS) dna_mpi $(DNAMPI) $(ARGS)
 
+dna_seq: $(DNASEQ) $(ARGS)
+	$(GCC) $(FLAGS) dna_seq $(DNASEQ) $(ARGS)
+
 points_mpi: $(POINTSMPI) $(ARGS)
 	$(CC) $(FLAGS) points_mpi $(POINTSMPI) $(ARGS)
+
+points_seq: $(POINTSSEQ) $(ARGS)
+	$(GCC) $(FLAGS) points_seq $(POINTSSEQ) $(ARGS)
 
 dna_test: dna_large.dat dna_small.dat
 
@@ -51,4 +60,4 @@ clean-data:
 	rm -rf points_large.dat points_small.dat dna_large.dat dna_small.dat points_huge.dat
 
 clean:
-	rm -rf dna_mpi points_mpi 
+	rm -rf dna_mpi points_mpi points_seq dna_seq
