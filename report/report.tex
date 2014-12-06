@@ -5,6 +5,8 @@
 \usepackage{alltt}
 \usepackage{color}
 \usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage{float}
 
 \oddsidemargin0.5cm
 \topmargin-1cm     %I recommend adding these three lines to increase the 
@@ -112,7 +114,52 @@ Our k-means algorithm for DNA Sequences was very similar to our algorithm for po
 
 \subsection{Networked Performance}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=400px]{iter_points_1000000_4.png}
+\end{figure}
+
+
+Unfortunately our performance on the network was heavily influenced by communication time. As is shown in the graph below. For small numbers of iterations, the processes spend almost all of their time communicating. This reflects the initialization cost of our parallel system. The data must be distributed to the workers who will then do computations on it. For small amounts of data, it would be more efficient to do all the computation on one machine and avoid the network entirely. However as number of iterations grows larger, the workers spend less of their time getting the data, and more time doing computations on it.
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=400px]{numprocs_points_1000000_100.png}
+\end{figure}
+
+Distributing the data across many networked nodes did not help significantly. Too much time was spent communicating, and there was essentially no performance speedup. We were not able to generate a dataset large enough to really see the benefit of parallelization over the network.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=400px]{size_points_4_100.png}
+\end{figure}
+
+As can be seen in the figure below, as the dataset gets larger, parallelization becomes more effective. With the two smaller datasets, almost none of the running time is spent computing things, and the workers are nearly always idle. This suggests that they are spending all of their time waiting for information to be sent across the network. When the dataset gets larger, we see that more of the time is spent doing actual computation, and the workers spend much less of their time idle. We hypothesize that on large datasets the efficiency introduced by parallelism, even over the network, would overcome the time wasted in data transmission.
+
+
 \subsection{Local Performance}
+
+Since the network performance was not as strong as we hoped, we also ran the processes locally.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=400px]{numprocs_dna_1000000_100_2.png}
+\end{figure}
+
+Here, with a large dataset (100,000 dna strands), and local parallelism, we can see that parallelizing the computation significantly speeds up the process. There is still an overhead incurred, but here it is clearly worth running on at least four processors (the number on the machine) and it seems to still improve even after this mark. We do see that as the number of processes increases, even locally, we pay a noticeable overhead.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=400px]{iter_dna_1000000_12_2.png}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=400px]{size_dna_12_10_2.png}
+\end{figure}
 
 \section{Data Set Generators}
 
