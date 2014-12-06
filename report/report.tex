@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{alltt}
 \usepackage{color}
+\usepackage{fancyvrb}
 
 \oddsidemargin0.5cm
 \topmargin-1cm     %I recommend adding these three lines to increase the 
@@ -15,8 +16,8 @@
 
 \title{Distributed Systems Lab 4}
 \author{
-	Evan Palmer - esp at andrew\\
-	Titouan Rigoudy - trigoudy at andrew
+    Evan Palmer - esp at andrew\\
+    Titouan Rigoudy - trigoudy at andrew
 }
 \date{\today}
 
@@ -26,15 +27,86 @@
 
 \section{Parallelization of K-Means}
 
-Our parallelization method had a coordinator, and many worker nodes.
+Our parallelization method had a single coordinator, and many worker nodes.
 
-The worker nodes were each assigned a chunk of the data. When they were sent a set of means, they would look at their portion of the data, decide which points belonged to each mean, and then calculate the average value of these points for each mean. Once this was done, they reported back to the coordinator node with the average value of the points closest to each mean, and the number of points used to compute that average.
 
-The coordinator repeatedly sent out the current k mean candidates to all of the worker nodes, and then waited for the averages and counts. Once all averages and counts were received, the coordinator node computed the new mean candidates, and sent them out to the workers. Since the number of computations performed by the coordinator depended only on the number of means, its workload was relatively low.
+The worker nodes were each assigned a partition of the data. These workers received the current means from the coordinator nodes. They then looked at their portion of the data, decided which mean was closest to each point. For each mean, the worker node calculated the sum of the X and Y values of points which were closest to that mean. Once this calculation completed, they reported back to the coordinator node with the sum of coordinates of points belonging to each mean, and the number of points in these sums.
+
+
+The coordinator repeatedly sent out the current k mean candidates to all of the worker nodes, and then waited for the sums and counts. Once all sums and counts were received, the coordinator node computed the new mean candidates by combining the sums and dividing by the total number of points which belonged to each mean. Since the number of computations performed by the coordinator depended only on the number of means, its workload was relatively low.
+
 
 This method of parallelization has the advantage that as long as the nodes can communicate sufficiently quickly, adding more nodes to the cluster will decrease the number of points assigned to each worker node, and therefore, the runtime of the algorithm.
 
+\newpage
+\subsection{Pseudo Code for Coordinator Node}
+\begin{Verbatim}[fontsize=\small]
+
+Points, NumPoints, NumClusters, Iterations, Machines <- GetInput()
+
+# Divide the points into partitions based on the number of available machines
+Partitions <- Partition(Points, Count(Machines))
+
+# Send one partition to each worker. This worker will be responsible for 
+# Computing the closest mean for each of the points in the partition.
+AssignPartitonsToWorkers(Partitions, Machines)
+
+# Randomly select NumClusters mean values to start with
+Means <- RandomlySelectK(Points, NumClusters)
+
+Repeat Iterations Times
+    # Send the current means to each worker
+    For Worker in Workers
+        Send(Worker, Means)
+    # Receive the sums and counts vectors from each worker
+    For Worker in Worker
+        MeanSums, CountSums += Receive(Worker)
+
+    # After combining all the MeanSums and CountSums,
+    # Element wise divide the vectors to get the averages
+    For Mean, MeanSum, CountSum in Means, MeanSums, CountSums
+        Mean = MeanSum / CountSum
+
+# Finally output the means
+Output(Means)
+
+\end{Verbatim} 
+
+\newpage
+
+\subsection{Pseudo Code for Worker Node}
+\begin{Verbatim}[fontsize=\small]
+
+PointPartition <- Receive(Coordinator)
+
+While Not Done
+
+    # The coordinator will tell us when we are done
+    If Coordinator Says Exit
+        Exit
+
+    # Get the current means from the coordinator
+    CurrentMeans <- Receive(Coordinator)
+
+    # Iterate over each point which belongs to our partition
+    For Point in PointPartition
+        # Find the mean which this point is closest to
+        ClosestMean = FindClosestMean(CurrentMeans, Point)
+        # Add that point to the mean sum for the mean it is closes to
+        MeanSums[ClosestMean] += Point
+        # Increment the number of points for the mean the point was closes to
+        MeanCount[ClosestMean] += 1
+
+    # Send the coordinator the mean sums and mean counts for our partition
+    Send(Coordinator, MeanSums, MeanCounts)
+
+\end{Verbatim} 
+
+
+
 \subsection{Comparison of DNA Sequences}
+
+Our k-means algorithm for DNA Sequences was very similar to our algorithm for points. However, instead of using squared error to measure similarity, we used a boolean dot product. Also, since there is not a meaningful way to report the average of several letters, we instead reported the counts of all possible values [T,C,A,G] at each position. On the coordinator node, we summed these counts, and then for each position, chose the most common value for the mean at that position.
 
 \section{Performance}
 
@@ -46,14 +118,16 @@ This method of parallelization has the advantage that as long as the nodes can c
 
 \subsection{Points Generator}
 
+We used a very slightly modified version of the point generator provided.
+
 \subsection{DNA Sequence Generator}
 
 Our DNA sequence generator generated clusters through the following method.
 
-First we generated k random DNA sequences - One for each desired cluster. Then for each one of these parent sequences, we proceeded to generate children.
+First we generated k random DNA sequences - One for each desired cluster. For each one of these parent sequences, we proceeded to generate children. Children are generated by iterating over all bases of the parent, and, for each base, either keeping the base with probability $p$, or replacing it with a random base with probability $1-p$. The parameter $p$ controls the tightness of the cluster, with a $p$ close to one producing tight distributions.
 
 \section{Building and Running}
-
+ 
 First build our project!
 
 \begin{enumerate}
@@ -70,15 +144,7 @@ There should now be four executables in your current directory:
 \texttt{dna\_seq} - The sequential implementation of k-means on dna \\
 \texttt{dna\_mpi} - The parallelized implementation of k-means on dna \\
 
-There should also be five datasets in the current directory:
-
-
-\texttt{points\_small.dat} - A small dataset of points \\
-\texttt{points\_large.dat} - A large dataset of points \\
-\texttt{points\_huge.dat} - A huge dataset of points \\
-\texttt{dna\_small.dat} - A small dataset of dna sequences \\
-\texttt{dna\_large.dat} - A large dataset of dna sequences \\
-
+There will also be many datasets.
 
 Running k-means:
 
