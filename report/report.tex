@@ -110,6 +110,15 @@ Our k-means algorithm for DNA Sequences was very similar to our algorithm for po
 
 \section{Performance}
 
+Given below is the baseline performance of sequential k-means on a cluster mmachine, without using MPI at all.
+
+\begin{tabular}
+    Number of iterations \textbackslash Dataset size & 100000 & 1000000 \\
+    1                                                &   0.2  &     1.9 \\
+    10                                               &   1.6  &      16 \\
+    100                                              &    17  &     174 \\
+\end{tabular}
+
 \subsection{Networked Performance}
 
 \subsection{Local Performance}
