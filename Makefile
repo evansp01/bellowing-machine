@@ -32,7 +32,7 @@ points_mpi: $(POINTSMPI) $(ARGS)
 points_seq: $(POINTSSEQ) $(ARGS)
 	$(GCC) $(FLAGS) points_seq $(POINTSSEQ) $(ARGS)
 
-dna_test: dna_large.dat dna_small.dat
+dna_test: dna_100000.dat dna_1000000.dat
 
 dna_1000000.dat:
 	@echo "Generating large dna dataset. This could take some time."
@@ -42,7 +42,7 @@ dna_100000.dat:
 	@echo "Generating small dna dataset."
 	$(PYTHON) $(GEN)/dna_gen.py -c 2 -l 50 -n 50000 -s 0.9 -f $@
 
-points_test: points_large.dat points_small.dat points_huge.dat
+points_test: points_100000.dat points_1000000.dat points_10000000.dat
 
 points_10000000.dat:
 	@echo "Generating huge points dataset. This could take some time."
