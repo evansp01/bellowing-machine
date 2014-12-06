@@ -1,4 +1,6 @@
 /points_mpi
 /dna_mpi
+/points_seq
+/dna_seq
 *.dat
 handin.tar
