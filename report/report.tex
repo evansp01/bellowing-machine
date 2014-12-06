@@ -112,15 +112,6 @@ Our k-means algorithm for DNA Sequences was very similar to our algorithm for po
 
 \section{Performance}
 
-Given below is the baseline performance of sequential k-means on a cluster mmachine, without using MPI at all.
-
-\begin{tabular}
-    Number of iterations \textbackslash Dataset size & 100000 & 1000000 \\
-    1                                                &   0.2  &     1.9 \\
-    10                                               &   1.6  &      16 \\
-    100                                              &    17  &     174 \\
-\end{tabular}
-
 \subsection{Networked Performance}
 
 \begin{figure}[H]
@@ -158,17 +149,30 @@ Since the network performance was not as strong as we hoped, we also ran the pro
 \includegraphics[width=400px]{numprocs_dna_1000000_100_2.png}
 \end{figure}
 
-Here, with a large dataset (100,000 dna strands), and local parallelism, we can see that parallelizing the computation significantly speeds up the process. There is still an overhead incurred, but here it is clearly worth running on at least four processors (the number on the machine) and it seems to still improve even after this mark. We do see that as the number of processes increases, even locally, we pay a noticeable overhead.
+Here, with a large dataset (100,000 DNA strands), and local parallelism, we can see that parallelizing the computation significantly speeds up the process. There is still an overhead incurred, but here it is clearly worth running on at least four processors (the number on the machine) and it seems to still improve even after this mark. We do see that as the number of processes increases, even locally, we pay a noticeable overhead.
+
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=400px]{iter_dna_1000000_12_2.png}
+\includegraphics[width=200px]{size_dna_12_10_2.png}
+\includegraphics[width=200px]{iter_dna_1000000_12_2.png}
 \end{figure}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=400px]{size_dna_12_10_2.png}
-\end{figure}
+As expected, on the local machine, performance was linear in both the number of iterations, and the size of the dataset.
+
+\subsection{Baseline}
+
+Given below is the baseline performance in seconds of sequential DNA k-means on a cluster machine, without using MPI at all.
+
+\begin{tabular}{| c |c | c |}
+\hline
+    Number of iterations \textbackslash $\;$ Dataset size & 100000 & 1000000 \\
+    \hline
+    1                                                &   0.2  &     1.9 \\
+    10                                               &   1.6  &      16 \\
+    100                                              &    17  &     174 \\
+    \hline
+\end{tabular}
 
 \section{Data Set Generators}
 
@@ -228,7 +232,7 @@ There will also be many datasets: \texttt{points\_100000.dat},
 
 Running k-means:
 
-All of the executables take the same arguments, as shown below. Note that the dna executables should only be run with the dna datasets, and the points executables with the points datasets.
+All of the executables take the same arguments, as shown below. Note that the DNA executables should only be run with the DNA datasets, and the points executables with the points datasets.
 
 \begin{verbatim}
 ./executable -d DATASET -o OUTFILE -i ITERATIONS -c CLUSTERS
