@@ -22,7 +22,7 @@ static int dna_dist(char *mean, char *point, int len)
 
 static int dna_most_similar(int k, int len, char *means, char *point)
 {
-    int max_similar = 0;
+    int max_similar = -1;
     int min_index = -1;
     for (int i = 0; i < k; i++)
     {
@@ -91,7 +91,7 @@ double get_means(char *means, int len, int k)
 void calc_sums_counts(char *points, char *means, int *mean_sums,
                       int *mean_counts, int k, int len, int n)
 {
-    memset(mean_sums, 0, len * 4 * k * sizeof(char));
+    memset(mean_sums, 0, len * 4 * k * sizeof(int));
     memset(mean_counts, 0, k * sizeof(int));
     for (int i = 0; i < n; i++)
     {
@@ -100,7 +100,7 @@ void calc_sums_counts(char *points, char *means, int *mean_sums,
         for (int j = 0; j < len; j++)
         {
             int charindex = letter_to_index(point[j]);
-            mean_sums[len * 4 * mean_index + charindex] += 1;
+            mean_sums[len * 4 * mean_index + 4*j + charindex] += 1;
         }
         mean_counts[mean_index] += 1;
     }
@@ -129,7 +129,9 @@ void worker_routine(int rank)
             break;
         }
         wait_time += get_means(means, len, k);
+
         calc_sums_counts(points, means, mean_sums, mean_counts, k, len, n);
+
         MPI_Send(mean_sums, 4 * len * k, MPI_INT, MASTER,
                  REPLY_MEANS, MPI_COMM_WORLD);
         MPI_Send(mean_counts, k, MPI_INT, MASTER,

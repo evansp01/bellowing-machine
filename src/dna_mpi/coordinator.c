@@ -92,16 +92,20 @@ static void recalculate_means(int *mean_sums, char *means, int k, int len)
     for (int i = 0; i < k * len; i++)
     {
         int *character = &mean_sums[i * 4];
+
         int max = 0;
         int max_index = -1;
+        //printf("Character %d\n",i);
         for (int j = 0; j < 4; j++)
         {
+            //printf("%d ",character[j]);
             if (character[j] > max)
             {
                 max = character[j];
                 max_index = j;
             }
         }
+        //printf("\n");
         char c;
         switch (max_index)
         {
@@ -118,6 +122,7 @@ static void recalculate_means(int *mean_sums, char *means, int k, int len)
             c = 'G';
             break;
         }
+        //printf("%c %c\n",means[i],c);
         means[i] = c;
     }
 }
@@ -140,7 +145,7 @@ static double run_iterations(int n, int k, int len, int world_size,
             MPI_Send(&cont, 1, MPI_INT, t, SEND_CONTINUE, MPI_COMM_WORLD);
             MPI_Send(means, len * k, MPI_CHAR, t, SEND_MEANS, MPI_COMM_WORLD);
         }
-        memset(sums_acc, 0, k * len * 4 * sizeof(char));
+        memset(sums_acc, 0, k * len * 4 * sizeof(int));
         memset(count_acc, 0, k * sizeof(int));
         for (int t = 1; t < world_size; t++)
         {
@@ -150,6 +155,9 @@ static double run_iterations(int n, int k, int len, int world_size,
             MPI_Recv(mean_counts, k, MPI_INT, t, REPLY_COUNTS,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             wait_time += MPI_Wtime() - temp;
+
+
+
             for (int j = 0; j < k; j++)
             {
                 count_acc[j] += mean_counts[j];
