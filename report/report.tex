@@ -128,6 +128,8 @@ First we generated k random DNA sequences - One for each desired cluster. For ea
 
 \section{Building and Running}
  
+\subsection{Building}
+
 First build our project!
 
 \begin{enumerate}
@@ -144,21 +146,11 @@ There should now be four executables in your current directory:
 \texttt{dna\_seq} - The sequential implementation of k-means on dna \\
 \texttt{dna\_mpi} - The parallelized implementation of k-means on dna \\
 
-There will also be many datasets.
+There will also be many datasets: \texttt{points\_100000.dat},
+\texttt{points\_1000000,dat}, \texttt{points\_10000000.dat},
+\texttt{dna\_100000.dat}, \texttt{dna\_1000000.dat}.
 
-Running k-means:
-
-All of the executables take the same arguments, as shown below. Note that the dna executables should only be run with the dna datasets, and the points executables with the points datasets.
-
-\begin{verbatim}
-./executable -d DATASET -o OUTFILE -i ITERATIONS -c CLUSTERS
-   -d DATASET      The dataset to run k-means on
-   -o OUTFILE      The file to write the output of k-means to
-   -i ITERATIONS   The number of iterations of k-means to run
-   -c CLUSTERS     The number of clusters to attempt to find
- \end{verbatim}
-
- If you would like to experiment with other datasets, you can use our dataset generators. The dataset generators.\\
+ If you would like to experiment with other datasets, you can use our dataset generators.\\
 
 
  In \texttt{src/gen}, you will find two files: 
@@ -176,7 +168,25 @@ All of the executables take the same arguments, as shown below. Note that the dn
 
  Please consult the help messages for usage.
 
+ \subsection{Running}
 
+Running k-means:
 
+All of the executables take the same arguments, as shown below. Note that the dna executables should only be run with the dna datasets, and the points executables with the points datasets.
+
+\begin{verbatim}
+./executable -d DATASET -o OUTFILE -i ITERATIONS -c CLUSTERS
+   -d DATASET      The dataset to run k-means on
+   -o OUTFILE      The file to write the output of k-means to
+   -i ITERATIONS   The number of iterations of k-means to run
+   -c CLUSTERS     The number of clusters to attempt to find
+\end{verbatim}
+
+You can also use the \texttt{run.sh} script to run our programs on the
+datasets, remotely or on the local machine, like so:
+
+\begin{verbatim}
+$ ./run.sh (remote|local) (dna|points)
+\end{verbatim}
 
 \end{document}
